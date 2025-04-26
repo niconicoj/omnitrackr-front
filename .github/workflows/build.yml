@@ -21,7 +21,7 @@ jobs:
         with:
           bun-version: latest
       - run: bun install
-      - run: bun run build-only --base=/omnitrackr/
+      - run: bun run build-only -- --base=/omnitrackr/
 
       - id: 'package'
         uses: actions/upload-artifact@v4
