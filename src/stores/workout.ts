@@ -14,31 +14,31 @@ export type WorkoutStepKind = 'start' | 'exercise' | 'set' | 'rest' | 'end'
 
 export type WorkoutStep =
   | {
-    kind: 'start'
-    text?: string
-  }
+      kind: 'start'
+      text?: string
+    }
   | {
-    kind: 'exercise'
-    name: string
-    setCount: number
-    text?: string
-  }
+      kind: 'exercise'
+      name: string
+      setCount: number
+      text?: string
+    }
   | {
-    kind: 'set'
-    reps: number
-    weight: Weight
-    setNumber: number
-    text?: string
-  }
+      kind: 'set'
+      reps: number
+      weight: Weight
+      setNumber: number
+      text?: string
+    }
   | {
-    kind: 'rest'
-    duration: number
-    text?: string
-  }
+      kind: 'rest'
+      duration: number
+      text?: string
+    }
   | {
-    kind: 'end'
-    text?: string
-  }
+      kind: 'end'
+      text?: string
+    }
 
 export enum CompilationStatus {
   notStarted,
@@ -61,11 +61,11 @@ export const compileWorkout = async ({
   statusRef?: Ref<CompilationStatus>
 }): Promise<WorkoutStep[]> => {
   if (statusRef) statusRef.value = CompilationStatus.compiling
-  let steps = generateWorkoutSteps(program)
+  const steps = generateWorkoutSteps(program)
   steps.forEach(generateStepText)
 
   if (speechSynthesisEnabled) {
-    let sentences = new Set<string>()
+    const sentences = new Set<string>()
     steps.forEach((step) => {
       if (step.text) sentences.add(step.text)
     })
@@ -90,7 +90,7 @@ const generateWorkoutSteps = (program: Program): WorkoutStep[] => {
   const steps: WorkoutStep[] = []
 
   steps.push({ kind: 'start' })
-  program.exercises.forEach((exercise) => {
+  program.exercises.forEach((exercise, exerciseIndex) => {
     steps.push({ kind: 'exercise', name: exercise.name, setCount: exercise.sets.length })
     exercise.sets.forEach((set, setIndex) => {
       steps.push({
@@ -99,7 +99,9 @@ const generateWorkoutSteps = (program: Program): WorkoutStep[] => {
         weight: set.weight,
         setNumber: setIndex + 1,
       })
-      if (set.restSeconds) {
+      const isLastSetOfWorkout =
+        exerciseIndex === program.exercises.length - 1 && setIndex === exercise.sets.length - 1
+      if (set.restSeconds && !isLastSetOfWorkout) {
         steps.push({ kind: 'rest', duration: set.restSeconds })
       }
     })
@@ -129,9 +131,15 @@ const generateStepText = (step: WorkoutStep) => {
   }
 }
 
+export const formatWeight = (weight: Weight): string => {
+  if (weight.kind === 'bodyweight') return 'Bodyweight'
+  if (weight.kind === 'kg') return `${weight.amount} kg`
+  return `${weight.amount} lbs`
+}
+
 const humanizeDuration = (seconds: number): string => {
-  let minutes = Math.floor(seconds / 60)
-  let remainingSeconds = seconds % 60
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
   if (minutes === 0) return `${remainingSeconds} seconds`
   else if (remainingSeconds === 0) return `${minutes} minutes`
   else return `${minutes} minutes and ${remainingSeconds} seconds`

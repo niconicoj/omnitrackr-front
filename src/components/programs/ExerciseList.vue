@@ -17,7 +17,7 @@ const moveExercise = (direction: 'up' | 'down', exercise: Exercise) => {
   const index = exercises.value.findIndex((e) => e.uuid === exercise.uuid)
   if (index === -1) return
   const newIndex = direction === 'up' ? index - 1 : index + 1
-  if (newIndex < 0 || newIndex >= exercises.length) return
+  if (newIndex < 0 || newIndex >= exercises.value.length) return
   exercises.value.splice(index, 1)
   exercises.value.splice(newIndex, 0, exercise)
 }

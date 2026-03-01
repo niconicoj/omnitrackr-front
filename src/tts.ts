@@ -8,7 +8,7 @@ const audioSpeeches: Map<string, HTMLAudioElement> = new Map()
 const hashCode = (str: string) => {
   let hash = 0
   for (let i = 0, len = str.length; i < len; i++) {
-    let chr = str.charCodeAt(i)
+    const chr = str.charCodeAt(i)
     hash = (hash << 5) - hash + chr
     hash |= 0
   }
@@ -31,7 +31,7 @@ export const loadTTS = async () => {
 }
 
 export const synthesizeSpeech = async (text: string) => {
-  let wav = await loadSpeech(text)
+  const wav = await loadSpeech(text)
   if (wav === null) {
     console.log('synthesizing speak:', text)
     const response = await fetch(`${import.meta.env.BASE_URL}api/synthesize`, {
@@ -60,7 +60,7 @@ export const speak = async (
   if (!text) return
   let audio = audioSpeeches.get(hashCode(text))
   if (!audio) {
-    let wav = await synthesizeSpeech(text)
+    const wav = await synthesizeSpeech(text)
     console.log('synthesized speak:', wav)
     audio = new Audio()
     audio.src = URL.createObjectURL(wav)
